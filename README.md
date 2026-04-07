@@ -35,7 +35,7 @@ nagarvaani/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/tanaygit0530/NirmanHack26.git
 cd nagarvaani
 ```
 
