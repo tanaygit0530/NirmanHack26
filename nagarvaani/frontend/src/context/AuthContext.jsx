@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) fetchProfile(session.user.id, session.user.email);
       else setLoading(false);
     });
 
@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user.email);
       } else {
         setProfile(null);
         setLoading(false);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, userEmail) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -39,7 +39,15 @@ export function AuthProvider({ children }) {
         .eq('id', userId)
         .maybeSingle();
       
+      let derivedRole = localStorage.getItem('nagarvaani_demo_role') || null;
+      if (userEmail) {
+         if (userEmail.includes('admin')) derivedRole = 'admin';
+         else if (userEmail.includes('officer')) derivedRole = 'officer';
+      }
+
       if (!error && data) {
+        // Force override for demo purposes if email implies higher clearance
+        if (derivedRole) data.role = derivedRole;
         setProfile(data);
       } else {
         // If data is null or error, try to create or just use a local default for the session
@@ -58,15 +66,28 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       console.error('Error fetching profile', err);
-      // Fail safely to citizen role
-      setProfile({ id: userId, role: 'citizen', full_name: 'Citizen' });
+      // Fallback offline role derivation from email structure (useful for testing)
+      let fallbackRole = 'citizen';
+      if (session?.user?.email) {
+        if (session.user.email.includes('admin')) fallbackRole = 'admin';
+        else if (session.user.email.includes('officer')) fallbackRole = 'officer';
+      }
+      setProfile({ id: userId, role: fallbackRole, full_name: fallbackRole === 'citizen' ? 'Citizen' : 'Officer/Admin' });
     } finally {
       setLoading(false);
     }
   };
 
   const signIn = async (email, password) => {
-    return await supabase.auth.signInWithPassword({ email, password });
+    const res = await supabase.auth.signInWithPassword({ email, password });
+    if (!res.error && res.data.user) {
+      let role = localStorage.getItem('nagarvaani_demo_role') || 'citizen';
+      if (email.includes('admin')) role = 'admin';
+      else if (email.includes('officer')) role = 'officer';
+      // Mock the profile instantly to avoid delays
+      setProfile({ id: res.data.user.id, role, full_name: role });
+    }
+    return res;
   };
 
   const signUp = async (email, password, fullName) => {
