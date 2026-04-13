@@ -64,13 +64,57 @@ export default function ComplaintForm({ onSubmit, isSubmitting }) {
     }
   }, [i18n.language]);
 
+  const aiExtract = async (transcript) => {
+    const loadId = toast.loading("AI analyzing your voice...");
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const res = await fetch(`${backendUrl}/api/voice/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript })
+      });
+      const data = await res.json();
+      
+      setFormData(prev => ({
+        ...prev,
+        category: data.category || prev.category,
+        description: data.description || prev.description,
+        location_text: data.location_text || prev.location_text
+      }));
+      
+      toast.success("AI: Details extracted! Check steps 1-3.", { id: loadId });
+    } catch (err) {
+      console.error("AI extraction failed", err);
+      toast.error("AI extraction failed. Please fill manually.", { id: loadId });
+    }
+  };
+
   const toggleListen = () => {
     if (isListening) {
       recognition?.stop();
     } else {
-      setFormData(prev => ({ ...prev, description: prev.description + (prev.description ? ' ' : '') })); // Add space before appending
+      setFormData(prev => ({ ...prev, description: '' })); 
       recognition?.start();
       setIsListening(true);
+      
+      // Stop and process after 5 seconds of silence or manual stop
+      recognition.onend = () => {
+        setIsListening(false);
+        // We trigger extraction when it ends
+      };
+      
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+          
+        setFormData(prev => ({ ...prev, description: transcript }));
+        
+        if (event.results[0].isFinal) {
+           aiExtract(transcript);
+        }
+      };
     }
   };
 

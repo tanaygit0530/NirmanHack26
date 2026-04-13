@@ -1,6 +1,7 @@
+require('dotenv').config();
 // Use native fetch for Gemini REST API
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'mock';
-const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
 async function callGemini(systemPrompt, userText) {
   if (GEMINI_API_KEY === 'mock') {
@@ -22,7 +23,10 @@ async function callGemini(systemPrompt, userText) {
       body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (!data.candidates || data.candidates.length === 0) throw new Error("No candidates returned from Gemini");
+    if (!data.candidates || data.candidates.length === 0) {
+      console.error("Gemini API Error Response:", JSON.stringify(data, null, 2));
+      throw new Error("No candidates returned from Gemini");
+    }
     return JSON.parse(data.candidates[0].content.parts[0].text);
   } catch (err) {
     console.error("Gemini Failure, using mock data as heartbeat:", err);

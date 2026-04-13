@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import AATSCard from '../../components/admin/AATSCard';
 import InsightsCard from '../../components/admin/InsightsCard';
@@ -174,12 +175,12 @@ export default function AdminDashboard() {
 
 function NavLink({ icon, label, active, href = "#" }) {
   return (
-    <a href={href} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+    <Link to={href} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
       active ? 'bg-navy-light text-saffron shadow-lg' : 'text-white/60 hover:bg-navy-light hover:text-white'
     }`}>
       {icon}
       <span>{label}</span>
-    </a>
+    </Link>
   );
 }
 

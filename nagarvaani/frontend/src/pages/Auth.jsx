@@ -23,13 +23,13 @@ export default function Auth() {
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
+    localStorage.setItem('nagarvaani_demo_role', activeRole);
     try {
       if (isLogin) {
         const { data, error } = await signIn(email, password);
         if (error) throw error;
         toast.success(`Identity Verified: Accessing ${activeRole.charAt(0).toUpperCase() + activeRole.slice(1)} Dashboard`);
-        // Navigate after short delay
-        setTimeout(() => navigate(`/${activeRole}/dashboard`), 500); 
+        setTimeout(() => navigate(activeRole === 'admin' ? '/admin/heatmap' : `/${activeRole}/dashboard`), 500); 
       } else {
         const { error } = await signUp(email, password, fullName);
         if (error) throw error;

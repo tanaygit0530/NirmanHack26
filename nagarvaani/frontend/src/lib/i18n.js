@@ -21,6 +21,51 @@ const resources = {
       "Login": "लॉगिन करें",
       "Register": "रजिस्टर करें",
     }
+  },
+  es: {
+    translation: {
+      "Welcome": "Bienvenido a NagarVaani",
+      "FileComplaint": "Presentar una queja",
+      "TrackComplaint": "Seguimiento de queja",
+      "Login": "Iniciar sesión",
+      "Register": "Registrarse",
+    }
+  },
+  fr: {
+    translation: {
+      "Welcome": "Bienvenue à NagarVaani",
+      "FileComplaint": "Déposer une plainte",
+      "TrackComplaint": "Suivre la plainte",
+      "Login": "Connexion",
+      "Register": "S'inscrire",
+    }
+  },
+  de: {
+    translation: {
+      "Welcome": "Willkommen bei NagarVaani",
+      "FileComplaint": "Beschwerde einreichen",
+      "TrackComplaint": "Beschwerde verfolgen",
+      "Login": "Anmelden",
+      "Register": "Registrieren",
+    }
+  },
+  ja: {
+    translation: {
+      "Welcome": "NagarVaaniへようこそ",
+      "FileComplaint": "苦情を申し立てる",
+      "TrackComplaint": "苦情を追跡する",
+      "Login": "ログイン",
+      "Register": "登録",
+    }
+  },
+  ar: {
+    translation: {
+      "Welcome": "مرحباً بكم في NagarVaani",
+      "FileComplaint": "تقديم شكوى",
+      "TrackComplaint": "تتبع الشكوى",
+      "Login": "تسجيل الدخول",
+      "Register": "تسجيل",
+    }
   }
 };
 

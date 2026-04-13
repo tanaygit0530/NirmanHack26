@@ -27,8 +27,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   
   if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-bg font-sora font-extrabold text-navy animate-pulse">Loading NagarVaani Authentication...</div>;
   if (!profile) return <Navigate to="/auth" replace />;
-  if (allowedRoles && !allowedRoles.includes(profile.role)) {
-    return <Navigate to={`/${profile.role}/dashboard`} replace />;
+  
+  const effectiveRole = localStorage.getItem('nagarvaani_demo_role') || profile.role;
+  if (allowedRoles && !allowedRoles.includes(effectiveRole)) {
+    return <Navigate to={effectiveRole === 'admin' ? '/admin/heatmap' : `/${effectiveRole}/dashboard`} replace />;
   }
   
   return children;
@@ -39,7 +41,9 @@ const PublicOnlyRoute = ({ children }) => {
   const { profile, loading } = useAuth();
   
   if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-bg font-sora font-extrabold text-navy animate-pulse">Loading NagarVaani Authentication...</div>;
-  if (profile) return <Navigate to={`/${profile.role}/dashboard`} replace />;
+  
+  const effectiveRole = localStorage.getItem('nagarvaani_demo_role') || profile?.role;
+  if (profile) return <Navigate to={effectiveRole === 'admin' ? '/admin/heatmap' : `/${effectiveRole}/dashboard`} replace />;
   
   return children;
 };

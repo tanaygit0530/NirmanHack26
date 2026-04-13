@@ -13,6 +13,7 @@ const { sendEmail, sendPushNotification } = require('../services/notificationSer
 const auditService = require('../services/auditService');
 const { authenticate } = require('../middleware/auth');
 const { complaintLimiter } = require('../middleware/rateLimiter');
+const { cleanComplaintText } = require('../utils/cleaner');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -22,13 +23,18 @@ router.post('/', upload.single('photo'), complaintLimiter, async (req, res) => {
   const ip_address = req.ip;
 
   try {
+    // 0. CLEAN INPUT
+    const cleanedText = cleanComplaintText(raw_text);
+
     // 1. VALIDATE INPUT
-    if (!raw_text || raw_text.split(' ').length < 10) {
-      return res.status(400).json({ error: 'Text must be at least 10 words' });
+    if (!cleanedText || cleanedText.split(' ').length < 10) {
+      return res.status(400).json({ error: 'Text must be at least 10 words after cleaning' });
     }
 
+    const finalRawTextForAI = cleanedText;
+
     // 2. SPAM FILTER
-    const spamResult = await filterSpam(raw_text);
+    const spamResult = await filterSpam(finalRawTextForAI);
     if (spamResult.status === 'rejected') {
       await auditService.log({ action: 'SPAM_REJECTED', ip_address, new_value: { text: raw_text } });
       return res.status(403).json({ error: 'Spam detected' });

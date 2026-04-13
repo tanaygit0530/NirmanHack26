@@ -22,6 +22,7 @@ const officersRouter = require('./routes/officers');
 const votesRouter = require('./routes/votes');
 const telegramRouter = require('./routes/webhooks/telegram');
 const redditRouter = require('./routes/webhooks/reddit');
+const voiceRouter = require('./routes/voice');
 
 app.use('/api/complaints', complaintsRouter);
 app.use('/api/tickets', ticketsRouter);
@@ -30,6 +31,7 @@ app.use('/api/admin/officers', officersRouter);
 app.use('/api/tickets', votesRouter); // Reusing /api/tickets/:id/vote
 app.use('/webhooks/telegram', telegramRouter);
 app.use('/webhooks/reddit', redditRouter);
+app.use('/api/voice', voiceRouter);
 
 // Initialize Cron Jobs
 require('./cron/allCrons');
